@@ -1,0 +1,21 @@
+
+spring:
+  kafka:
+    producer:
+      bootstrap-servers: kafka:9092
+    consumer:
+      bootstrap-servers: kafka:9092
+
+properties:
+  authorization:
+    server:
+      issuer: http://ms-grpc-auth:${server.port}
+  oauth2:
+    redirectUri: http://ms-grpc-auth:9000/callback
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ms-discovery-server:8761/eureka/   
+
+   
