@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<div class="container" th:replace="~{fragments/head::head}" />
+
+<body>
+	<main>
+
+		<div class="container">
+
+			<div class="row justify-content-center">
+				<div class="col-lg-8 col-md-8 col-sm-10">
+
+					<div class="jumbotron text-center">
+						<h1 class="display-4">Request completed</h1>
+						<p class="lead">Use with caution</p>
+						<hr class="my-4">
+						<h3>Authorization Code</h3>
+						<p th:text="${authorizationCode}"></p>	
+						<h4>State / Nuance</h4>
+						<p th:text="${state}"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<div class="container" th:replace="~{fragments/footer}">
+
+</body>
+
+</html>
