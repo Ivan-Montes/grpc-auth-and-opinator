@@ -1,0 +1,93 @@
+
+spring:
+  application:
+    name: ms-grpc-opinator
+  config:
+    import: optional:file:.env[.properties]
+
+  data:
+    mongodb:
+      uri: mongodb://${spring.data.mongodb.user}:${spring.data.mongodb.password}@${spring.data.mongodb.host}:${spring.data.mongodb.port}/${spring.data.mongodb.database}?authSource=admin
+      host: localhost
+      port: 27018
+      user: sa
+      password: ${MONGODB_PASS_WRITE:invalidPassword}
+      database: opinator_write_db
+
+# JWT Server conf for client
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
+
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      transaction-id-prefix: tx-${eureka.instance.instance-id}-
+      properties:
+        enable:
+          idempotence: true
+        cleanup:
+          policy: compact
+        acks: all
+        retries: 10
+        retry:
+          backoff:
+            ms: 1000
+    consumer:
+      bootstrap-servers: localhost:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        isolation:
+          level: read_committed
+        spring:
+          json:
+            trusted:
+              packages: '*'
+
+server:
+  port: ${SERVER_PORT:0}
+
+grpc:
+  server:
+    port: ${GRPC_SERVER_PORT:0}
+    security:
+      enabled: true
+      certificateChain: file:certificates/server.crt
+      privateKey: file:certificates/server.key
+      trustCertCollection: file:certificates/ca.crt
+      clientAuth: OPTIONAL
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+    preferIpAddress: true
+
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ 
+
+logging:
+  level:
+    org:
+      springframework:
+        security: ERROR 
+      hibernate:
+        stat: DEBUG 
+
+properties:
+  hibernate:
+    url: jdbc:${properties.hibernate.drivername}://${properties.hibernate.host}:${properties.hibernate.port}/${properties.hibernate.database}
+    user: root
+    password: ${SQLDB_PASS}
+    database: opinator_read_db
+    host: localhost
+    port: 5433
+    driverfqn: org.postgresql.Driver
+    drivername: postgresql
+
