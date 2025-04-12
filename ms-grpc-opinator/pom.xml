@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>dev.ime</groupId>
+		<artifactId>grpc-auth-and-opinator</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>ms-grpc-opinator</artifactId>
+	<name>ms-grpc-opinator</name>
+	<description>Project for Spring Boot</description>
+	
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	
+	<properties>
+		<grpc.server.spring.version>3.1.0.RELEASE</grpc.server.spring.version>
+        <grpc.version>1.70.0</grpc.version>
+        <reactive.grpc.version>1.2.4</reactive.grpc.version>
+        <grpc.version.test>1.63.0</grpc.version.test>
+        <os.maven.plugin>1.7.0</os.maven.plugin>
+        <protobuf.version>3.25.0</protobuf.version>
+        <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+        <hibernate-reactive.version>2.4.5.Final</hibernate-reactive.version>
+        <vertx-pg-client.version>4.5.12</vertx-pg-client.version>
+        <hibernate-jpamodelgen.version>6.6.7.Final</hibernate-jpamodelgen.version>
+        <smallrye.mutiny-reactor>2.7.0</smallrye.mutiny-reactor>
+	</properties>
+	
+	<dependencies>
+		   
+	  <dependency>
+        <groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-webflux</artifactId>
+	  </dependency>
+	  
+	  <dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-security</artifactId>
+	  </dependency>    
+	  <dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-test</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	  	    
+	  <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+	  </dependency>
+
+	  <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+	  </dependency>
+	  
+	  <!-- https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core -->
+	  <dependency>
+	    <groupId>org.hibernate.reactive</groupId>
+	    <artifactId>hibernate-reactive-core</artifactId>
+	    <version>${hibernate-reactive.version}</version>
+	  </dependency>
+	  <!-- https://mvnrepository.com/artifact/io.vertx/vertx-pg-client -->
+	  <dependency>
+	    <groupId>io.vertx</groupId>
+	    <artifactId>vertx-pg-client</artifactId>
+	    <version>${vertx-pg-client.version}</version>
+	  </dependency>
+	  <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-jpamodelgen -->
+	  <dependency>
+	    <groupId>org.hibernate.orm</groupId>
+	    <artifactId>hibernate-jpamodelgen</artifactId>
+	    <scope>runtime</scope>
+	  </dependency>
+	  <!-- https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny-reactor -->
+	  <dependency>
+	    <groupId>io.smallrye.reactive</groupId>
+	    <artifactId>mutiny-reactor</artifactId>
+	    <version>${smallrye.mutiny-reactor}</version>
+	  </dependency>
+	  <!-- https://mvnrepository.com/artifact/com.ongres.scram/client -->
+	  <dependency>
+	    <groupId>com.ongres.scram</groupId>
+	    <artifactId>client</artifactId>
+	    <version>2.1</version>
+	  </dependency>						
+
+	  <dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<optional>true</optional>
+	  </dependency>
+	  <dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-validation</artifactId>
+	  </dependency>
+	  <dependency>
+	    <groupId>org.springframework.cloud</groupId>
+	    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+	  </dependency>	
+	  
+      <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka-test</artifactId>
+        <scope>test</scope>
+      </dependency>		
+	  <dependency>
+		<groupId>io.projectreactor.kafka</groupId>
+		<artifactId>reactor-kafka</artifactId>
+	  </dependency>		
+	  	 
+	  <dependency>
+	    <groupId>net.devh</groupId>
+		<artifactId>grpc-server-spring-boot-starter</artifactId>
+		<version>${grpc.server.spring.version}</version>
+      </dependency>
+	  <dependency>
+	    <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+	    <groupId>io.grpc</groupId>
+	    <artifactId>grpc-testing</artifactId>
+        <version>${grpc.version.test}</version>
+	    <scope>test</scope>
+	  </dependency>	  
+	  
+	  <dependency>
+	    <groupId>io.projectreactor</groupId>
+	    <artifactId>reactor-core</artifactId>
+	  </dependency>
+	  <dependency>
+		<groupId>io.projectreactor</groupId>
+		<artifactId>reactor-test</artifactId>
+		<scope>test</scope>
+	  </dependency>
+	  <dependency>
+	    <groupId>com.salesforce.servicelibs</groupId>
+	    <artifactId>reactor-grpc-stub</artifactId>
+        <version>${reactive.grpc.version}</version>
+	  </dependency>
+	  
+	  <dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-testcontainers</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	  <dependency>
+	    <groupId>org.testcontainers</groupId>
+	    <artifactId>junit-jupiter</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	  <dependency>
+	    <groupId>org.testcontainers</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	  <dependency>
+	    <groupId>org.postgresql</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	    
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os.maven.plugin}</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-plugin.version}</version>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                      <configuration>
+			              <pluginParameter>
+			              @generated=omit
+			              </pluginParameter>
+			              <protocPlugins>
+                            <protocPlugin>
+                              <id>reactor-grpc</id>
+                              <groupId>com.salesforce.servicelibs</groupId>
+                              <artifactId>reactor-grpc</artifactId>
+                              <version>${reactive.grpc.version}</version>
+                              <mainClass>com.salesforce.reactorgrpc.ReactorGrpcGenerator</mainClass>
+                            </protocPlugin>
+                          </protocPlugins>
+			          </configuration>
+                      <goals>
+                        <goal>compile</goal>
+                        <goal>compile-custom</goal>
+                      </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        
+	</build>
+
+</project>
