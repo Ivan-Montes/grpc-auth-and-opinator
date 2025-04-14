@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "category-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service CategoryGrpcCommandService {
+
+  rpc CreateCategory(CreateCategoryRequest) returns (CategoryProto) {
+      option (google.api.http) = {
+          post: "/api/v1/categories"
+          body: "*"
+      };
+  }
+  rpc UpdateCategory (UpdateCategoryRequest) returns (CategoryProto) {
+      option (google.api.http) = {
+          post: "/api/v1/categories/{categoryId}"
+          body: "*"
+      };
+  }
+  rpc DeleteCategory (DeleteCategoryRequest) returns (DeleteCategoryResponse) {
+      option (google.api.http) = { delete: "/api/v1/categories/{categoryId}" };
+  }
+  
+}
+
+message CreateCategoryRequest { 
+  string categoryName = 1;
+}
+
+message UpdateCategoryRequest { 
+  string categoryId = 1;
+  string categoryName = 2;
+}
+
+message DeleteCategoryRequest {
+  string categoryId = 1;
+}
+
+message DeleteCategoryResponse {
+  string categoryId = 1;
+  google.protobuf.BoolValue success = 2;
+}
+
