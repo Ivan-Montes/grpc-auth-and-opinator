@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "product-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service ProductGrpcCommandService {
+
+  rpc CreateProduct(CreateProductRequest) returns (ProductProto) {
+    option (google.api.http) = {
+      post: "/api/v1/products"
+      body: "*"
+    };
+  }
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductProto) {
+    option (google.api.http) = {
+      post: "/api/v1/products/{productId}"
+      body: "*"
+    };
+  }
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {
+    option (google.api.http) = { 
+      delete: "/api/v1/products/{productId}" 
+    };
+  }
+  
+}
+
+message CreateProductRequest {
+  string productName = 1;
+  string productDescription = 2;
+  string categoryId = 3;
+}
+
+message UpdateProductRequest {
+  string productId = 1;
+  string productName = 2;
+  string productDescription = 3;
+  string categoryId = 4;
+}
+
+message DeleteProductRequest {
+  string productId = 1;
+}
+
+message DeleteProductResponse {
+  string productId = 1;
+  google.protobuf.BoolValue success = 2;
+}
+

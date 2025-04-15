@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "product-service.proto";
+import "common.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service ProductGrpcQueryService {
+
+  rpc ListProducts(google.protobuf.Empty) returns (ListProductsResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/products" 
+    };
+  }
+  rpc ListProductsPaginated(PaginationRequest) returns (ListProductsResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/products" 
+    };
+  }
+  rpc GetProduct(GetProductRequest) returns (ProductProto) {
+    option (google.api.http) = { 
+      get: "/api/v1/products/{productId}" 
+    };
+  }
+  
+}
+
+message ListProductsResponse {
+  repeated ProductProto products = 1;
+}
+
+message GetProductRequest {
+  string productId = 1;
+}

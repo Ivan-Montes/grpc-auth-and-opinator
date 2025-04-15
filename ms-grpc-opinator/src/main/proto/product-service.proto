@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+message ProductProto {
+  string productId = 1;
+  string productName = 2;
+  string productDescription = 3;
+  string categoryId = 4;
+}
+
