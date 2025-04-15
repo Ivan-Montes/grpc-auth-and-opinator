@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "review-service.proto";
+import "common.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service ReviewGrpcQueryService {
+  
+  rpc ListReviews(google.protobuf.Empty) returns (ListReviewsResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/reviews" 
+    };
+  }
+  rpc ListReviewsPaginated(PaginationRequest) returns (ListReviewsResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/reviews" 
+    };
+  }
+  rpc GetReview(GetReviewRequest) returns (ReviewProto) {
+    option (google.api.http) = { 
+      get: "/api/v1/reviews/{reviewId}" 
+    };
+  }
+  
+}
+
+message ListReviewsResponse {
+  repeated ReviewProto reviews = 1;
+}
+
+message GetReviewRequest {
+  string reviewId = 1;
+}

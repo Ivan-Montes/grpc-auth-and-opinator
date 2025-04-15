@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "review-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service ReviewGrpcCommandService {
+  
+  rpc CreateReview(CreateReviewRequest) returns (ReviewProto) {
+    option (google.api.http) = {
+      post: "/api/v1/reviews"
+      body: "*"
+    };
+  }
+  rpc UpdateReview(UpdateReviewRequest) returns (ReviewProto) {
+    option (google.api.http) = {
+      post: "/api/v1/reviews/{reviewId}"
+      body: "*"
+    };
+  }
+  rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse) {
+    option (google.api.http) = { 
+      delete: "/api/v1/reviews/{reviewId}" 
+    };
+  }
+  
+}
+
+message CreateReviewRequest {
+  string productId = 1;
+  string reviewText = 2;
+  int32 rating = 3;
+}
+
+message UpdateReviewRequest {
+  string reviewId = 1;
+  string reviewText = 2;
+  int32 rating = 3;
+}
+
+message DeleteReviewRequest {
+  string reviewId = 1;
+}
+
+message DeleteReviewResponse {
+  string reviewId = 1;
+  google.protobuf.BoolValue success = 2;
+}
+
