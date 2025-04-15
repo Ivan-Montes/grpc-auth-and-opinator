@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "common.proto";
+import "vote-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service VoteGrpcQueryService {
+
+  rpc ListVotes(google.protobuf.Empty) returns (ListVotesResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/votes" 
+    };
+  }
+  rpc ListVotesPaginated(PaginationRequest) returns (ListVotesResponse) {
+    option (google.api.http) = { 
+      get: "/api/v1/votes" 
+    };
+  }
+  rpc GetVote(GetVoteRequest) returns (VoteProto) {
+    option (google.api.http) = { 
+      get: "/api/v1/votes/{voteId}" 
+    };
+  }
+  
+}
+
+message ListVotesResponse {
+  repeated VoteProto votes = 1;
+}
+
+message GetVoteRequest {
+  string voteId = 1;
+}

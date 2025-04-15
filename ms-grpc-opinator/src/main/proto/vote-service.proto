@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+message VoteProto {
+  string voteId = 1;
+  string email = 2;
+  string reviewId = 3;
+  google.protobuf.BoolValue useful = 4;
+}
+

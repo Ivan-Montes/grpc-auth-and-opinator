@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "vote-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service VoteGrpcCommandService {
+
+  rpc CreateVote(CreateVoteRequest) returns (VoteProto) {
+    option (google.api.http) = {
+      post: "/api/v1/votes"
+      body: "*"
+    };
+  }
+  rpc UpdateVote(UpdateVoteRequest) returns (VoteProto) {
+    option (google.api.http) = {
+      post: "/api/v1/votes/{voteId}"
+      body: "*"
+    };
+  }
+  rpc DeleteVote(DeleteVoteRequest) returns (DeleteVoteResponse) {
+    option (google.api.http) = { 
+      delete: "/api/v1/votes/{voteId}" 
+    };
+  }
+  
+}
+
+message CreateVoteRequest {
+  string reviewId = 1;
+  bool useful = 2;
+}
+
+message UpdateVoteRequest {
+  string voteId = 1;
+  bool useful = 2;
+}
+
+message DeleteVoteRequest {
+  string voteId = 1;
+}
+
+message DeleteVoteResponse {
+  string voteId = 1;
+  google.protobuf.BoolValue success = 2;
+}
+
