@@ -1,0 +1,29 @@
+
+spring: 
+  kafka:
+    producer:
+      bootstrap-servers: kafka:9092
+    consumer:
+      bootstrap-servers: kafka:9092      
+      
+  data:                     
+    mongodb:
+      host: ms-grpc-userapp-write-db
+      port: 27017       
+ 
+  r2dbc:
+    host: ms-grpc-userapp-read-db
+    port: 5432
+      
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://ms-grpc-auth:9000 
+       
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ms-discovery-server:8761/eureka/
+
+          
