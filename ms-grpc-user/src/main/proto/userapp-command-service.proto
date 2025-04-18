@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "userapp-service.proto";
+
+package net.proto;
+
+option java_multiple_files = true;
+option java_package = "dev.proto";
+
+service UserAppGrpcCommandService {
+
+  rpc CreateUser (CreateUserAppRequest) returns (UserAppCreatedResponse) {
+      option (google.api.http) = {
+          post: "/api/v1/usersapp"
+          body: "*"
+      };
+  }
+  rpc UpdateUser (UpdateUserAppRequest) returns (UserAppProto) {
+      option (google.api.http) = {
+          post: "/api/v1/usersapp/{email}"
+          body: "*"
+      };
+  }
+  rpc DeleteUser (DeleteUserAppRequest) returns (DeleteUserAppResponse) {
+      option (google.api.http) = { delete: "/api/v1/usersapp/{email}" };
+  }
+  rpc DisableUser (DisableUserAppRequest) returns (DisableUserAppResponse) {
+      option (google.api.http) = { 
+          post: "/api/v1/usersapp/disable/{email}"
+          body: "*" 
+      };
+  }
+  rpc EnableUser (EnableUserAppRequest) returns (EnableUserAppResponse) {
+      option (google.api.http) = { 
+          post: "/api/v1/usersapp/enable/{email}" 
+          body: "*"
+      };
+  }
+}
+
+message CreateUserAppRequest { 
+  string email = 1;
+  string name = 2; 
+  string lastname = 3;
+}
+
+message UserAppCreatedResponse {
+  bool result = 1;
+}
+
+message UpdateUserAppRequest {
+  string userAppId = 1;
+  string email = 2;
+  string name = 3;
+  string lastname = 4; 
+}
+
+message DeleteUserAppRequest {
+  string userAppId = 1;
+}
+
+message DeleteUserAppResponse {
+  string userAppId = 1;
+  bool result = 2;
+}
+
+message DisableUserAppRequest {
+  string email = 1;
+}
+
+message DisableUserAppResponse {
+  bool result = 1;
+}
+
+message EnableUserAppRequest {
+  string email = 1;
+}
+
+message EnableUserAppResponse {
+  bool result = 1;
+}
+
