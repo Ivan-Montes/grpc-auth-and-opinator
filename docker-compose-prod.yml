@@ -1,0 +1,238 @@
+
+name: grpc-auth-and-opinator
+
+services:
+
+  ms-grpc-userapp-write-db:
+    image: mongo:8.0.3-noble
+    container_name: ms-grpc-userapp-write-db
+    environment:
+      MONGO_INITDB_DATABASE: userapp_write_db
+      MONGO_INITDB_ROOT_USERNAME: sa
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASS_WRITE}
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - 27017:27017 
+    restart: on-failure:3
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  ms-grpc-userapp-read-db:
+    image: postgres:17.1-alpine
+    container_name: ms-grpc-userapp-read-db
+    environment:
+      POSTGRES_PASSWORD: ${SQLDB_PASS}
+      POSTGRES_USER: root
+      POSTGRES_DB: userapp_read_db
+    volumes:
+      - ./databases/ms-grpc-userapp/init.sql:/docker-entrypoint-initdb.d/init.sql   
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - "5432:5432"
+    restart: on-failure:3
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-grpc-opinator-write-db:
+    image: mongo:8.0.3-noble
+    container_name: ms-grpc-opinator-write-db
+    environment:
+      MONGO_INITDB_DATABASE: opinator_write_db
+      MONGO_INITDB_ROOT_USERNAME: sa
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASS_WRITE}
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - 27018:27017 
+    restart: on-failure:3
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  ms-grpc-opinator-read-db:
+    image: postgres:17.1-alpine
+    container_name: ms-grpc-opinator-read-db
+    environment:
+      POSTGRES_PASSWORD: ${SQLDB_PASS}
+      POSTGRES_USER: root
+      POSTGRES_DB: opinator_read_db
+    volumes:
+      - ./databases/ms-grpc-opinator/init.sql:/docker-entrypoint-initdb.d/init.sql   
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+    - "5433:5432"
+    restart: on-failure:3
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: bitnami/kafka:3.8
+    container_name: kafka
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_KRAFT_CLUSTER_ID=danmachi-kafka
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes    
+      - KAFKA_AUTO_OFFSET_RESET=earliest       
+      - BITNAMI_DEBUG=true        
+#    volumes:
+#      - kafka_persistent:/var/lib/kafka
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - 9092:9092
+      - 9093:9093
+    restart: on-failure:3
+    healthcheck:
+      test: "bash -c 'printf \"\" > /dev/tcp/127.0.0.1/9092; exit $$?;'"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  ms-discovery-server:
+    container_name: ms-discovery-server
+    build:
+      dockerfile_inline: |
+        FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+        WORKDIR /app
+        COPY ./pom.xml ./
+        COPY ./ms-discovery-server/pom.xml ./ms-discovery-server/
+        COPY ./src ./src
+        COPY ./ms-discovery-server/src ./ms-discovery-server/src
+        RUN cd ./ms-discovery-server && mvn clean package -DskipTests
+        FROM eclipse-temurin:21-jre-alpine
+        WORKDIR /app
+        COPY --from=builder /app/ms-discovery-server/target/*.jar ./app.jar
+        ENTRYPOINT [ "java", "-jar", "./app.jar" ] 
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE:-prod}
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - 8761:8761
+    restart: on-failure:3
+    healthcheck:
+      test: "${EUREKA_HEALTHCHECK_TEST:-wget --no-verbose --tries=1 --spider http://ms-discovery-server:8761/actuator/health || exit 1}"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ms-grpc-auth:
+    container_name: ms-grpc-auth
+    build:
+      dockerfile_inline: |
+        FROM maven:3.9.6-eclipse-temurin-21 AS builder
+        WORKDIR /app
+        COPY ./pom.xml ./
+        COPY ./ms-grpc-auth/pom.xml ./ms-grpc-auth/
+        COPY ./src ./src
+        COPY ./ms-grpc-auth/src ./ms-grpc-auth/src
+        RUN cd ./ms-grpc-auth && mvn clean package -DskipTests
+        FROM eclipse-temurin:21-jre
+        WORKDIR /app
+        COPY --from=builder /app/ms-grpc-auth/target/*.jar ./app.jar
+        COPY ./ms-grpc-auth/certificates /app/certificates
+        ENTRYPOINT [ "java", "-jar", "./app.jar" ] 
+    env_file: ./.env   
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE:-prod}
+    networks:
+      - grpc-auth-and-opinator-net
+    ports:
+      - 9000:9000
+      - 9001:9001
+    restart: on-failure:3
+    depends_on:
+      ms-discovery-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  ms-grpc-user:
+    container_name: ms-grpc-user
+    build:
+      dockerfile_inline: |
+        FROM maven:3.9.6-eclipse-temurin-21 AS builder
+        WORKDIR /app
+        COPY ./pom.xml ./
+        COPY ./ms-grpc-user/pom.xml ./ms-grpc-user/
+        COPY ./src ./src
+        COPY ./ms-grpc-user/src ./ms-grpc-user/src
+        RUN cd ./ms-grpc-user && mvn clean package -DskipTests
+        FROM eclipse-temurin:21-jre
+        WORKDIR /app
+        COPY --from=builder /app/ms-grpc-user/target/*.jar ./app.jar
+        COPY ./ms-grpc-user/certificates /app/certificates
+        ENTRYPOINT [ "java", "-jar", "./app.jar" ] 
+    env_file: ./.env   
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE:-prod}
+    networks:
+      - grpc-auth-and-opinator-net
+    restart: on-failure:3
+    depends_on:
+      ms-discovery-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  ms-grpc-opinator:
+    container_name: ms-grpc-opinator
+    build:
+      dockerfile_inline: |
+        FROM maven:3.9.6-eclipse-temurin-21 AS builder
+        WORKDIR /app
+        COPY ./pom.xml ./
+        COPY ./ms-grpc-opinator/pom.xml ./ms-grpc-opinator/
+        COPY ./src ./src
+        COPY ./ms-grpc-opinator/src ./ms-grpc-opinator/src
+        RUN cd ./ms-grpc-opinator && mvn clean package -DskipTests
+        FROM eclipse-temurin:21-jre
+        WORKDIR /app
+        COPY --from=builder /app/ms-grpc-opinator/target/*.jar ./app.jar
+        COPY ./ms-grpc-opinator/certificates /app/certificates
+        ENTRYPOINT [ "java", "-jar", "./app.jar" ] 
+    env_file: ./.env   
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE:-prod}
+    networks:
+      - grpc-auth-and-opinator-net
+    restart: on-failure:3
+    depends_on:
+      ms-discovery-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+
+networks:
+  grpc-auth-and-opinator-net:
+    name: grpc-auth-and-opinator-net
+    ipam:
+       config:
+       - subnet: 172.25.33.0/24
+         gateway: 172.25.33.1
+
